@@ -410,4 +410,35 @@ DisplayID defos_get_current_display() {
     return NULL;
 }
 
+void defos_set_keep_awake(bool keep_awake) {
+    EM_ASM({
+        var keep = $0;
+        if (keep) {
+            if (!Module.__defosjs_wakeLock && 'wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').then(function(lock) {
+                    Module.__defosjs_wakeLock = lock;
+                    lock.addEventListener('release', function() {
+                        Module.__defosjs_wakeLock = null;
+                    });
+                }).catch(function() {});
+            }
+        } else {
+            if (Module.__defosjs_wakeLock) {
+                Module.__defosjs_wakeLock.release().then(function() {
+                    Module.__defosjs_wakeLock = null;
+                }).catch(function() {
+                    Module.__defosjs_wakeLock = null;
+                });
+            }
+        }
+    }, keep_awake ? 1 : 0);
+}
+
+bool defos_is_keep_awake_supported() {
+    int supported = EM_ASM_INT({
+        return ('wakeLock' in navigator) ? 1 : 0;
+    });
+    return supported != 0;
+}
+
 #endif

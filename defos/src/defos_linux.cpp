@@ -24,6 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 #include <X11/extensions/Xfixes.h>
+#include <X11/extensions/scrnsaver.h>
 #include <Xcursor.h>
 #include <Xrandr.h>
 
@@ -924,6 +925,21 @@ static void send_message(Window &window, Atom type, long a, long b, long c, long
     event.xclient.data.l[4] = e;
 
     XSendEvent(disp, root, False, SubstructureNotifyMask | SubstructureRedirectMask, &event);
+}
+
+static bool g_keep_awake = false;
+
+void defos_set_keep_awake(bool keep_awake)
+{
+    if (keep_awake == g_keep_awake) { return; }
+    g_keep_awake = keep_awake;
+    XScreenSaverSuspend(disp, keep_awake ? True : False);
+    XFlush(disp);
+}
+
+bool defos_is_keep_awake_supported()
+{
+    return true;
 }
 
 #endif
