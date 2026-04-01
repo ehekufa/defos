@@ -96,9 +96,13 @@ function init(self)
 				defos.toggle_borderless()
 			end
 			if gui.get_flipbook(gui.get_node("toggle_keep_awake/larrybutton")) == hash("button_pressed") then
-				self.keep_awake = not self.keep_awake
-				defos.set_keep_awake(self.keep_awake)
-				gui.set_text(gui.get_node("toggle_keep_awake/larrylabel"), self.keep_awake and "Allow screen sleep" or "Keep screen awake")
+				if defos.is_keep_awake_supported() then
+					self.keep_awake = not self.keep_awake
+					defos.set_keep_awake(self.keep_awake)
+					gui.set_text(gui.get_node("toggle_keep_awake/larrylabel"), self.keep_awake and "Allow screen sleep" or "Keep screen awake")
+				else
+					print("defos: Keep-awake / Wake Lock is not supported on this platform.")
+				end
 			end
 		end)
 	end

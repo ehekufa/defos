@@ -385,7 +385,7 @@ arguments = defos.get_arguments()
 
 ```lua
 defos.set_keep_awake(bool_value)
-bool_value = defos.is_keep_awake_supported()
+local supported = defos.is_keep_awake_supported()
 ```
 
 Example usage with gamepad input:
