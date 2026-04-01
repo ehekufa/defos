@@ -420,13 +420,16 @@ void defos_set_keep_awake(bool keep_awake) {
                     lock.addEventListener('release', function() {
                         Module.__defosjs_wakeLock = null;
                     });
-                }).catch(function() {});
+                }).catch(function(err) {
+                    console.error('defos: wake lock request failed:', err);
+                });
             }
         } else {
             if (Module.__defosjs_wakeLock) {
                 Module.__defosjs_wakeLock.release().then(function() {
                     Module.__defosjs_wakeLock = null;
-                }).catch(function() {
+                }).catch(function(err) {
+                    console.error('defos: wake lock release failed:', err);
                     Module.__defosjs_wakeLock = null;
                 });
             }

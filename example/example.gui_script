@@ -261,8 +261,10 @@ function on_input(self, action_id, action)
 	end)
 
 	dirtylarry:button("toggle_keep_awake", action_id, action, function()
-		self.keep_awake = not self.keep_awake
-		defos.set_keep_awake(self.keep_awake)
-		gui.set_text(gui.get_node("toggle_keep_awake/larrylabel"), self.keep_awake and "Allow screen sleep" or "Keep screen awake")
+		if system_name ~= "HTML5" then
+			self.keep_awake = not self.keep_awake
+			defos.set_keep_awake(self.keep_awake)
+			gui.set_text(gui.get_node("toggle_keep_awake/larrylabel"), self.keep_awake and "Allow screen sleep" or "Keep screen awake")
+		end
 	end)
 end
