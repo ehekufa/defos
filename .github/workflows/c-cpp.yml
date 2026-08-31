@@ -1,4 +1,4 @@
-name: Build and validate DimOS
+name: Build and validate DefOS
 
 on:
   push:
@@ -9,51 +9,65 @@ permissions:
   contents: read
 
 concurrency:
-  group: dimos-${{ github.workflow }}-${{ github.ref }}
+  group: defos-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    name: Build and validate bootable images
+    name: Build and validate extension package
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
       - name: Check out source
         uses: actions/checkout@v6
 
-      - name: Install build dependencies
+      - name: Validate extension source
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends \
-            build-essential \
-            binutils \
-            dosfstools \
-            mtools \
-            nasm \
-            xorriso
+          set -euxo pipefail
 
-      - name: Build bootable images
-        run: make iso
+          # Core project files
+          test -f README.md
+          test -f LICENSE
+          test -f game.project
 
-      - name: Validate bootable images
-        run: make verify
+          # Extension manifest and settings
+          test -f defos/ext.manifest
+          test -f defos/ext.properties
 
-      - name: Create checksums
+          # Defold API glue
+          test -f defos/api/defos.lua
+          test -f defos/api/defos.script_api
+
+          # Native extension sources
+          test -f defos/src/defos.cpp
+          test -f defos/src/defos_linux.cpp
+          test -f defos/src/defos_mac.mm
+          test -f defos/src/defos_win.cpp
+          test -f defos/src/defos_html5.cpp
+          test -f defos/src/defos_private.h
+
+          # Bundled static libraries
+          test -f defos/lib/x86_64-linux/libXcursor.a
+          test -f defos/lib/x86_64-linux/libXrandr.a
+          test -f defos/lib/arm64-linux/libXcursor.a
+          test -f defos/lib/arm64-linux/libXrandr.a
+
+      - name: Create source package
         run: |
-          cd disk_img
-          sha256sum dimos.iso dimos.img dimos.hdd > SHA256SUMS
+          set -euxo pipefail
+          mkdir -p dist
+          tar \
+            --exclude='./.git' \
+            --exclude='./.github' \
+            --exclude='./dist' \
+            -czf "dist/defos-${{ github.sha }}.tar.gz" .
 
-      - name: Upload DimOS package
+      - name: Upload DefOS package
         uses: actions/upload-artifact@v6
         with:
-          name: DimOS-${{ github.sha }}
-          path: |
-            disk_img/dimos.iso
-            disk_img/dimos.img
-            disk_img/dimos.hdd
-            disk_img/SHA256SUMS
-            README.md
+          name: DefOS-${{ github.sha }}
+          path: dist/defos-*.tar.gz
           if-no-files-found: error
           compression-level: 0
           retention-days: 14
