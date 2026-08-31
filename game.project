@@ -1,4 +1,4 @@
-[project]
+ [project]
 title = DefOS
 version = 1.0.1
 custom_resources = resources/
