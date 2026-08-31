@@ -11,3 +11,5 @@ builtins
 .vscode/
 *.txt
 /.editor_settings
+/dist/
+/disk_img/
